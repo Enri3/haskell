@@ -155,22 +155,28 @@ eval (Div a b) = div (eval a) (eval b)
 data BTS a = H | N (BTS a) a (BTS a) deriving(Show)
 
 bts1 = N (N (N H 2 H) 5 (N H 9 H)) 10 (N (N (N (N H 11 H) 11 H) 11 H) 12 (N H 41 H))
+bts2 = N (N H 5 (N (N H 3 H) 6 H)) 10 (N H 15 (N (N H 13 H) 16 H))
+arbolNoBTS = N (N H 4 (N H 8 H)) 6 H
 
 maximun:: BTS a -> a
 maximun (N l a H) = a
 maximun (N l a r) = maximun r
-{-
-checkIzq x t@(N l a r) = x > a && checkBTS t
 
-checkDer x t@(N l a r) = x < a && checkBTS t
+minimun:: BTS a -> a
+minimun (N H a r) = a
+minimun (N l a r) = minimun r
 
-checkBTS:: BTS a -> Bool
+checkIzq a t@(N l x r) = if a > x then checkBTS t else False
+
+checkDer a t@(N l x r) = if a < x then checkBTS t else False
+
+checkBTS:: (Ord a) => BTS a -> Bool
 checkBTS H = True
 checkBTS (N H a H) = True
-checkBTS (N H a r) = checkDer a r
-checkBTS (N l a H) = checkIzq a l
-checkBTS (N l a r) = (checkIzq a l) && (checkDer a r)
--}
+checkBTS (N H a r) = checkDer a r && a > minimun r && a < maximun r
+checkBTS (N l a H) = checkIzq a l && a > minimun l && a < maximun l
+checkBTS (N l a r) = (checkIzq a l) && (checkDer a r) && (a > minimun l) && (a < maximun r)
+
 --ejercicio 6
 
 completo:: a -> Int -> BTS a
