@@ -5,6 +5,9 @@ borrarUlt [] = []
 borrarUlt (x:[]) = []
 borrarUlt (x:xs) = x:borrarUlt xs
 
+contDups2:: (Eq a) => [a] -> [a]
+contDups2 xs = [x | (x,y) <- zip xs (tail xs), x /= y]
+
 contDups:: (Eq a) => [a] -> [a]
 contDups [] = []
 contDups (x:[]) = [x]
