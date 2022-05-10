@@ -47,12 +47,28 @@ expandir xs = [x | x <- xs, i <- [1..x]]
 
 data AD a = Respuesta a |Opciones [AD a] deriving(Show)
 
-ad1 = Opciones [(Respuesta 2),(Respuesta 2),(Respuesta 2),(Respuesta 2),(Opciones [(Respuesta 4)])]
+ad1:: AD Int
+ad1 = Opciones [(Opciones [(Respuesta 2)]),(Respuesta 3),(Respuesta 4),(Respuesta 5),(Opciones [(Respuesta 6)])]
 
-{-
-prof f (Respuesta x) = f x
-prof f (Opciones (x:xs)) = prof f x:prof' f xs
+mapAD f (Respuesta x) = Respuesta (f x)
+mapAD f x@(Opciones [])= x
+mapAD f (Opciones (x:xs)) = merge (mapAD f x) (mapAD f (Opciones xs))
+       where merge x (Opciones xs) = Opciones (x:xs)
 
-prof' f [] = []
-prof' f (x:xs) = prof f x:prof' f xs
--}
+prof y (Respuesta x) = Respuesta (x,y+1)
+prof y (Opciones []) = Opciones []
+prof y (Opciones (x:xs)) = merge (prof (y+1) x) (prof y (Opciones xs))
+    where merge x (Opciones xs) = Opciones (x:xs)
+
+profundidad xs = prof 0 xs
+
+retprof' (Respuesta (x,y)) = [y]
+retprof' (Opciones []) = []
+retprof' (Opciones (x:xs)) = (retprof' x)++(retprof' (Opciones xs))
+
+retprof xs = retprof' (profundidad xs)
+
+buscar (Respuesta x) = Just x
+buscar (Opciones (x:[])) = buscar x
+buscar (Opciones (x:y:xs)) | retprof x > retprof y = buscar (Opciones (y:xs))
+                           | otherwise = buscar (Opciones (x:xs))
